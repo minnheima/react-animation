@@ -1,24 +1,16 @@
 import styled from "styled-components";
-import { motion } from "framer-motion";
-import { useRef } from "react";
+import { motion, useMotionValue, useTransform } from "framer-motion";
+import { useEffect } from "react";
 
-const Wrapper = styled.div`
+const Wrapper = styled(motion.div)`
   height: 100vh;
   width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
+  background: linear-gradient(135deg, rgb(238, 0, 153), rgb(221, 0, 238));
 `;
-const BiggerBox = styled.div`
-  justify-content: center;
-  align-items: center;
-  display: flex;
-  width: 600px;
-  height: 600px;
-  background-color: rgba(255, 255, 255, 0.4);
-  border-radius: 40px;
-  overflow: hidden;
-`;
+
 const Box = styled(motion.div)`
   width: 200px;
   height: 200px;
@@ -26,28 +18,26 @@ const Box = styled(motion.div)`
   border-radius: 40px;
   box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1), 0 10px 20px rgba(0, 0, 0, 0.06);
 `;
-const boxVariants = {
-  hover: {
-    rotateZ: 90,
-  },
-  click: {
-    borderRadius: "100px",
-  },
-};
+
 function App() {
-  const biggerBoxRef = useRef<HTMLDivElement>(null);
+  const x = useMotionValue(0);
+  const rotateZ = useTransform(x, [-800, 800], [-360, 360]);
+  const gradient = useTransform(
+    x,
+    [-800, 800],
+    [
+      "linear-gradient(135deg, rgb(7, 194, 166), rgb(21, 115, 238))",
+      "linear-gradient(135deg, rgb(44, 232, 135), rgb(224, 211, 62))",
+    ]
+  );
+  //motion은 리렌더링 시키지 않는다
+  // useEffect(() => {
+  //   // x.onChange(() => console.log(x.get()));
+  //   scale.onChange(() => console.log(scale.get()));
+  // }, [scale]);
   return (
-    <Wrapper>
-      <BiggerBox ref={biggerBoxRef}>
-        <Box
-          variants={boxVariants}
-          drag
-          dragSnapToOrigin
-          dragConstraints={biggerBoxRef}
-          whileHover="hover"
-          whileTap="click"
-        ></Box>
-      </BiggerBox>
+    <Wrapper style={{ background: gradient }}>
+      <Box style={{ x, rotateZ }} drag="x" dragSnapToOrigin></Box>
     </Wrapper>
   );
 }
