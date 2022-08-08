@@ -11,7 +11,7 @@ const Wrapper = styled(motion.div)`
   background: linear-gradient(135deg, rgb(238, 0, 153), rgb(221, 0, 238));
 `;
 const Box = styled(motion.div)`
-  width: 200px;
+  width: 400px;
   height: 200px;
   background-color: rgba(255, 255, 255, 1);
   border-radius: 40px;
@@ -27,38 +27,48 @@ const Btn = styled.button`
   padding: 3px 5px;
 `;
 const boxVariants = {
-  invisible: {
+  entry: (isBack: boolean) => ({
     opacity: 0,
     scale: 0,
-    x: 500,
-  },
-  visible: {
+    x: isBack ? -500 : 500,
+  }),
+  center: {
     opacity: 1,
     scale: 1,
     x: 0,
   },
-  exit: {
+  exit: (isBack: boolean) => ({
     opacity: 0,
     scale: 0,
-    x: -500,
-  },
+    x: isBack ? 500 : -500,
+  }),
 };
 function App() {
   const [visible, setVisible] = useState(1);
-  const nextContents = () => setVisible((prev) => (prev === 10 ? 10 : prev + 1));
-  const prevContents = () => setVisible((prev) => (prev === 1 ? 1 : prev - 1));
+  const [back, setBack] = useState(false);
+  const nextContents = () => {
+    setBack(false);
+    setVisible((prev) => (prev === 10 ? 10 : prev + 1));
+  };
 
-  //지금은 prev 버튼을 눌러도 next 버튼을 눌렀을 때와 같은 방향으로 움직인다. 다음강의에서 변경하기
+  const prevContents = () => {
+    setBack(true);
+    setVisible((prev) => (prev === 1 ? 1 : prev - 1));
+  };
   return (
     <Wrapper>
-      <AnimatePresence>
-        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) =>
-          i === visible ? (
-            <Box key={i} variants={boxVariants} initial="invisible" animate="visible" exit="exit">
-              {i}
-            </Box>
-          ) : null
-        )}
+      <AnimatePresence custom={back}>
+        <Box
+          custom={back}
+          key={visible}
+          variants={boxVariants}
+          initial="entry"
+          animate="center"
+          exit="exit"
+          transition={{ duration: 0.7 }}
+        >
+          {visible}
+        </Box>
       </AnimatePresence>
       <Btn onClick={prevContents}>prev</Btn>
       <Btn onClick={nextContents}>next</Btn>
