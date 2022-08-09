@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { useState } from "react";
 
 const Wrapper = styled(motion.div)`
@@ -12,66 +12,27 @@ const Wrapper = styled(motion.div)`
 `;
 const Box = styled(motion.div)`
   width: 400px;
-  height: 200px;
+  height: 400px;
+  display: flex;
   background-color: rgba(255, 255, 255, 1);
   border-radius: 40px;
-  position: absolute;
-  top: 100px;
-  text-align: center;
-  line-height: 200px;
-  font-size: 28px;
   box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1), 0 10px 20px rgba(0, 0, 0, 0.06);
 `;
-const Btn = styled.button`
-  display: inline-block;
-  padding: 3px 5px;
+const Circle = styled(motion.div)`
+  background-color: #00a5ff;
+  width: 100px;
+  height: 100px;
+  border-radius: 50px;
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1), 0 10px 20px rgba(0, 0, 0, 0.06);
 `;
-const boxVariants = {
-  entry: (isBack: boolean) => ({
-    opacity: 0,
-    scale: 0,
-    x: isBack ? -500 : 500,
-  }),
-  center: {
-    opacity: 1,
-    scale: 1,
-    x: 0,
-  },
-  exit: (isBack: boolean) => ({
-    opacity: 0,
-    scale: 0,
-    x: isBack ? 500 : -500,
-  }),
-};
 function App() {
-  const [visible, setVisible] = useState(1);
-  const [back, setBack] = useState(false);
-  const nextContents = () => {
-    setBack(false);
-    setVisible((prev) => (prev === 10 ? 10 : prev + 1));
-  };
-
-  const prevContents = () => {
-    setBack(true);
-    setVisible((prev) => (prev === 1 ? 1 : prev - 1));
-  };
+  const [clicked, setClicked] = useState(false);
+  const toggleClicked = () => setClicked((prev) => !prev);
   return (
-    <Wrapper>
-      <AnimatePresence custom={back}>
-        <Box
-          custom={back}
-          key={visible}
-          variants={boxVariants}
-          initial="entry"
-          animate="center"
-          exit="exit"
-          transition={{ duration: 0.7 }}
-        >
-          {visible}
-        </Box>
-      </AnimatePresence>
-      <Btn onClick={prevContents}>prev</Btn>
-      <Btn onClick={nextContents}>next</Btn>
+    <Wrapper onClick={toggleClicked}>
+      <Box style={{ justifyContent: clicked ? "center" : "flex-start", alignItems: clicked ? "center" : "flex-start" }}>
+        <Circle layout />
+      </Box>
     </Wrapper>
   );
 }
