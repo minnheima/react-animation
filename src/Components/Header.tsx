@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { motion, useAnimation, useViewportScroll } from "framer-motion";
+import { motion, useAnimation, useScroll } from "framer-motion";
 import { Link, useMatch } from "react-router-dom";
 import { useEffect, useState } from "react";
 
@@ -102,7 +102,7 @@ function Header() {
   const tvMatch = useMatch("/tv");
   const inputAnimation = useAnimation();
   const navAnimation = useAnimation();
-  const { scrollY } = useViewportScroll();
+  const { scrollY } = useScroll();
 
   const toggleSearch = () => {
     if (searchOpen) {
