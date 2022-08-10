@@ -46,32 +46,46 @@ const Row = styled(motion.div)`
   position: absolute;
   display: grid;
   width: 100%;
-  gap: 10px;
+  gap: 5px;
   grid-template-columns: repeat(6, 1fr);
 `;
 const rowVariants = {
   hidden: {
-    x: window.outerWidth + 10,
+    x: window.outerWidth,
   },
   visible: {
     x: 0,
   },
   exit: {
-    x: -window.outerWidth - 10,
+    x: -window.outerWidth,
   },
 };
-const Box = styled(motion.div)`
-  background-color: white;
+const Box = styled(motion.div)<{ bgPhoto: string }>`
   height: 200px;
   color: red;
   font-size: 30px;
+  border-radius: 5px;
+  background-image: url(${(props) => props.bgPhoto});
+  background-size: cover;
+  background-position: center center;
 `;
+const offset = 6;
 
 function Home() {
   const { data, isLoading } = useQuery<IGetMoviesResult>(["movies", "nowPlaying"], getMovies);
   // console.log(data, isLoading);
   const [idx, setIdx] = useState(0);
-  const increaseIdx = () => setIdx((prev) => prev + 1);
+  const [leaving, setLeaving] = useState(false);
+  const increaseIdx = () => {
+    if (data) {
+      if (leaving) return;
+      toggleLeaving();
+      const totalMovies = data.results.length - 1; // -1은 banner에 쓰고 있는 영화를 하나 빼야하기 때문
+      const maxIdx = Math.floor(totalMovies / offset) - 1;
+      setIdx((prev) => (prev === maxIdx ? 0 : prev + 1)); //prev+1만 할 게 아니라 madIdx가 되면 0으로 돌려줘야함
+    }
+  };
+  const toggleLeaving = () => setLeaving((prev) => !prev);
   return (
     <Wrapper>
       {isLoading ? (
@@ -83,7 +97,7 @@ function Home() {
             <Overview>{data?.results[0].overview}</Overview>
           </Banner>
           <Slider>
-            <AnimatePresence>
+            <AnimatePresence initial={false} onExitComplete={toggleLeaving}>
               <Row
                 key={idx}
                 variants={rowVariants}
@@ -92,9 +106,12 @@ function Home() {
                 exit="exit"
                 transition={{ type: "tween", duration: 1 }}
               >
-                {[1, 2, 3, 4, 5, 6].map((n) => (
-                  <Box key={n}>{n}</Box>
-                ))}
+                {data?.results
+                  .slice(1)
+                  .slice(offset * idx, offset * idx + offset)
+                  .map((movie) => (
+                    <Box key={movie.id} bgPhoto={makeImagePath(movie.backdrop_path, "w500")} />
+                  ))}
               </Row>
             </AnimatePresence>
           </Slider>
