@@ -15,13 +15,13 @@ const Loader = styled.div`
   justify-content: center;
   align-items: center;
 `;
-const Banner = styled.div<{ bgPhoto: string }>`
+const Banner = styled.div<{ bgphoto: string }>`
   height: 100vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
   padding: 60px;
-  background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 1)), url(${(props) => props.bgPhoto});
+  background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 1)), url(${(props) => props.bgphoto});
   background-size: cover;
 `;
 const Title = styled.h2`
@@ -60,15 +60,33 @@ const rowVariants = {
     x: -window.outerWidth,
   },
 };
-const Box = styled(motion.div)<{ bgPhoto: string }>`
+const Box = styled(motion.div)<{ bgphoto: string }>`
   height: 200px;
-  color: red;
-  font-size: 30px;
   border-radius: 5px;
-  background-image: url(${(props) => props.bgPhoto});
+  background-image: url(${(props) => props.bgphoto});
   background-size: cover;
   background-position: center center;
+  &:first-child {
+    transform-origin: center left;
+  }
+  &:last-child {
+    transform-origin: center right;
+  }
 `;
+const boxVariants = {
+  normal: {
+    scale: 1,
+  },
+  hover: {
+    scale: 1.3,
+    y: -30,
+    zIndex: 10,
+    transition: {
+      delay: 0.3,
+      type: "tween",
+    },
+  },
+};
 const offset = 6;
 
 function Home() {
@@ -92,7 +110,7 @@ function Home() {
         <Loader>Loading...</Loader>
       ) : (
         <>
-          <Banner onClick={increaseIdx} bgPhoto={makeImagePath(data?.results[0].backdrop_path || "")}>
+          <Banner onClick={increaseIdx} bgphoto={makeImagePath(data?.results[0].backdrop_path || "")}>
             <Title>{data?.results[0].title}</Title>
             <Overview>{data?.results[0].overview}</Overview>
           </Banner>
@@ -110,7 +128,14 @@ function Home() {
                   .slice(1)
                   .slice(offset * idx, offset * idx + offset)
                   .map((movie) => (
-                    <Box key={movie.id} bgPhoto={makeImagePath(movie.backdrop_path, "w500")} />
+                    <Box
+                      key={movie.id}
+                      variants={boxVariants}
+                      whileHover="hover"
+                      initial="normal"
+                      transition={{ type: "tween", duration: 0.3 }}
+                      bgphoto={makeImagePath(movie.backdrop_path, "w500")}
+                    />
                   ))}
               </Row>
             </AnimatePresence>
