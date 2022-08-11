@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 const Wrapper = styled.div`
   background-color: black;
+  height: auto;
 `;
 const Loader = styled.div`
   height: 20vh;
@@ -26,6 +27,7 @@ const Banner = styled.div<{ bgphoto: string }>`
 `;
 const Title = styled.h2`
   font-size: 68px;
+  font-weight: 400;
   margin-bottom: 20px;
 `;
 const Overview = styled.p`
@@ -63,6 +65,7 @@ const rowVariants = {
 const Box = styled(motion.div)<{ bgphoto: string }>`
   height: 200px;
   border-radius: 5px;
+  overflow: hidden;
   background-image: url(${(props) => props.bgphoto});
   background-size: cover;
   background-position: center center;
@@ -80,7 +83,28 @@ const boxVariants = {
   hover: {
     scale: 1.3,
     y: -30,
-    zIndex: 10,
+    // zIndex: 10,
+    transition: {
+      delay: 0.3,
+      type: "tween",
+    },
+  },
+};
+const Info = styled(motion.div)`
+  width: 100%;
+  position: absolute;
+  bottom: 0;
+  padding: 10px 20px;
+  background-color: ${(props) => props.theme.black.lighter};
+  opacity: 0;
+  h4 {
+    font-weight: 500;
+    font-size: 18px;
+  }
+`;
+const infoVariants = {
+  hover: {
+    opacity: 1,
     transition: {
       delay: 0.3,
       type: "tween",
@@ -135,7 +159,11 @@ function Home() {
                       initial="normal"
                       transition={{ type: "tween", duration: 0.3 }}
                       bgphoto={makeImagePath(movie.backdrop_path, "w500")}
-                    />
+                    >
+                      <Info variants={infoVariants}>
+                        <h4>{movie.title}</h4>
+                      </Info>
+                    </Box>
                   ))}
               </Row>
             </AnimatePresence>
