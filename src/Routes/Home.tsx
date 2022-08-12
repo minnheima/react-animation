@@ -3,12 +3,11 @@ import { getMovies, IGetMoviesResult } from "../api";
 import styled from "styled-components";
 import { makeImagePath } from "../utils";
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 import { useNavigate, useMatch } from "react-router-dom";
 
 const Wrapper = styled.div`
   background-color: black;
-  height: auto;
 `;
 const Loader = styled.div`
   height: 20vh;
@@ -111,12 +110,54 @@ const infoVariants = {
     },
   },
 };
+const Overlay = styled(motion.div)`
+  position: fixed;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  opacity: 0;
+`;
+const MovieDetail = styled(motion.div)`
+  position: absolute;
+  width: 45vw;
+  height: 70vh;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  border-radius: 10px;
+  overflow: hidden;
+  background-color: ${(props) => props.theme.black.darker};
+`;
+const MovieCover = styled.div`
+  width: 100%;
+  height: 400px;
+  background-size: cover;
+  background-position: center center;
+`;
+
+const MovieWrap = styled.div`
+  position: relative;
+  top: -60px;
+  padding: 0 30px;
+  color: ${(props) => props.theme.white.lighter};
+`;
+const MovieTitle = styled.h3`
+  font-size: 36px;
+`;
+const MovieOverview = styled.p`
+  font-size: 18px;
+  margin-top: 10px;
+`;
 const offset = 6;
 
 function Home() {
   const history = useNavigate(); // useHistory() -> useNavigate() : React router dom v6
-  const bigMovieMatch = useMatch("/movies/:movieId");
+  const moviePathMatch = useMatch("/movies/:movieId");
   // console.log(bigMovieMatch);
+  const { scrollY } = useScroll();
+  const setScrollY = useTransform(scrollY, (value) => value + 110);
+
   const { data, isLoading } = useQuery<IGetMoviesResult>(["movies", "nowPlaying"], getMovies);
   // console.log(data, isLoading);
   const [idx, setIdx] = useState(0);
@@ -134,6 +175,13 @@ function Home() {
   const onBoxClicked = (movieId: number) => {
     history(`/movies/${movieId}`);
   };
+  const onOverlayClick = () => {
+    history("/");
+  };
+
+  const clickedMovie =
+    moviePathMatch?.params.movieId && data?.results.find((movie) => movie.id + "" === moviePathMatch.params.movieId);
+  // console.log(clickedMovie);
   return (
     <Wrapper>
       {isLoading ? (
@@ -177,20 +225,28 @@ function Home() {
             </AnimatePresence>
           </Slider>
           <AnimatePresence>
-            {bigMovieMatch ? (
-              <motion.div
-                layoutId={bigMovieMatch.params.movieId}
-                style={{
-                  position: "absolute",
-                  width: "40vw",
-                  height: "80vh",
-                  backgroundColor: "red",
-                  top: 100,
-                  left: 0,
-                  right: 0,
-                  margin: "0 auto",
-                }}
-              />
+            {moviePathMatch ? (
+              <>
+                <Overlay onClick={onOverlayClick} animate={{ opacity: 1 }} exit={{ opacity: 0 }} />
+                <MovieDetail style={{ top: setScrollY }} layoutId={moviePathMatch.params.movieId}>
+                  {clickedMovie && (
+                    <>
+                      <MovieCover
+                        style={{
+                          backgroundImage: `linear-gradient(to top,#181818, transparent),url(${makeImagePath(
+                            clickedMovie.backdrop_path,
+                            "w500"
+                          )})`,
+                        }}
+                      />
+                      <MovieWrap>
+                        <MovieTitle>{clickedMovie.title}</MovieTitle>
+                        <MovieOverview>{clickedMovie.overview}</MovieOverview>
+                      </MovieWrap>
+                    </>
+                  )}
+                </MovieDetail>
+              </>
             ) : null}
           </AnimatePresence>
         </>
