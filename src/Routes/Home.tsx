@@ -5,9 +5,12 @@ import { makeImagePath } from "../utils";
 import { useState } from "react";
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 import { useNavigate, useMatch } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCircleXmark } from "@fortawesome/free-regular-svg-icons";
 
 const Wrapper = styled.div`
   background-color: black;
+  overflow-x: hidden;
 `;
 const Loader = styled.div`
   height: 20vh;
@@ -110,6 +113,7 @@ const infoVariants = {
     },
   },
 };
+
 const Overlay = styled(motion.div)`
   position: fixed;
   top: 0;
@@ -135,7 +139,20 @@ const MovieCover = styled.div`
   background-size: cover;
   background-position: center center;
 `;
-
+const BtnClose = styled.span`
+  position: absolute;
+  right: 12px;
+  top: 10px;
+  width: 30px;
+  height: 30px;
+  font-size: 30px;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  transition: 0.3s ease;
+  &:hover {
+    color: ${(props) => props.theme.white.darker};
+  }
+`;
 const MovieWrap = styled.div`
   position: relative;
   top: -60px;
@@ -149,6 +166,7 @@ const MovieOverview = styled.p`
   font-size: 18px;
   margin-top: 10px;
 `;
+
 const offset = 6;
 
 function Home() {
@@ -159,7 +177,7 @@ function Home() {
   const setScrollY = useTransform(scrollY, (value) => value + 110);
 
   const { data, isLoading } = useQuery<IGetMoviesResult>(["movies", "nowPlaying"], getMovies);
-  // console.log(data, isLoading);
+  // console.log(data, isLoading);  // undefined true :Object false
   const [idx, setIdx] = useState(0);
   const [leaving, setLeaving] = useState(false);
   const increaseIdx = () => {
@@ -245,6 +263,9 @@ function Home() {
                       </MovieWrap>
                     </>
                   )}
+                  <BtnClose onClick={onOverlayClick}>
+                    <FontAwesomeIcon icon={faCircleXmark} />
+                  </BtnClose>
                 </MovieDetail>
               </>
             ) : null}

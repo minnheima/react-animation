@@ -8,7 +8,21 @@ interface IMovie {
   title: string;
   overview: string;
 }
-
+export interface ISearch {
+  id: number;
+  popularity: number;
+  vote_average: number;
+  genre_ids: number[];
+  original_language: string;
+  original_title: string;
+  original_name: string;
+  overview: string;
+  title: string;
+  backdrop_path: string;
+  poster_path: string;
+  release_date: string;
+  media_type: string;
+}
 export interface IGetMoviesResult {
   date: {
     maximum: string;
@@ -20,6 +34,15 @@ export interface IGetMoviesResult {
   total_results: number;
 }
 
+export interface IGetMultiSearch {
+  results: ISearch[];
+}
 export function getMovies() {
   return fetch(`${BASE_PATH}/movie/now_playing?api_key=${API_KEY}`).then((response) => response.json());
+}
+
+export function getSearch(keyword: string | null) {
+  return fetch(`${BASE_PATH}/search/multi?api_key=${API_KEY}&language=en-US&query=${keyword}`).then((response) =>
+    response.json()
+  );
 }
