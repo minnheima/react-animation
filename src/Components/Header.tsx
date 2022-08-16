@@ -88,6 +88,7 @@ const Input = styled(motion.input)`
   transform-origin: right center;
   background: transparent;
   border: none;
+  color: white;
   border-bottom: 1px solid #7c7c7c;
 `;
 const navVariants = {

@@ -7,22 +7,16 @@ interface IMovie {
   poster_path: string;
   title: string;
   overview: string;
-}
-export interface ISearch {
-  id: number;
   popularity: number;
   vote_average: number;
   genre_ids: number[];
   original_language: string;
   original_title: string;
   original_name: string;
-  overview: string;
-  title: string;
-  backdrop_path: string;
-  poster_path: string;
   release_date: string;
   media_type: string;
 }
+
 export interface IGetMoviesResult {
   date: {
     maximum: string;
@@ -35,8 +29,34 @@ export interface IGetMoviesResult {
 }
 
 export interface IGetMultiSearch {
-  results: ISearch[];
+  results: IMovie[];
 }
+interface IGenres {
+  id: number;
+  name: string;
+}
+interface ICompanies {
+  id: number;
+  name: string;
+  logo_path: string;
+}
+
+export interface IGetMovieDetail {
+  adult: boolean;
+  backdrop_path: string;
+  genres: IGenres[];
+  homepage: string;
+  id: number;
+  production_companies: ICompanies[];
+  title: string;
+  vote_average: number;
+  overview: string;
+  poster_path?: string;
+  name: string;
+  runtime: number;
+  number_of_seasons: number;
+}
+
 export function getMovies() {
   return fetch(`${BASE_PATH}/movie/now_playing?api_key=${API_KEY}`).then((response) => response.json());
 }
@@ -45,4 +65,8 @@ export function getSearch(keyword: string | null) {
   return fetch(`${BASE_PATH}/search/multi?api_key=${API_KEY}&language=en-US&query=${keyword}`).then((response) =>
     response.json()
   );
+}
+
+export function getMovieGenres() {
+  return fetch(`${BASE_PATH}/genre/movie.list?api_key=${API_KEY}`).then((response) => response.json());
 }

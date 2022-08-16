@@ -7,10 +7,12 @@ import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion"
 import { useNavigate, useMatch } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleXmark } from "@fortawesome/free-regular-svg-icons";
+import { faAngleRight, faAngleLeft } from "@fortawesome/free-solid-svg-icons";
+import Footer from "../Components/Footer";
 
 const Wrapper = styled.div`
   background-color: black;
-  overflow-x: hidden;
+  height: auto;
 `;
 const Loader = styled.div`
   height: 20vh;
@@ -45,24 +47,49 @@ const Overview = styled.p`
 const Slider = styled.div`
   position: relative;
   top: -10vw;
+  height: 250px;
+  margin-bottom: 20px;
+`;
+const SliderTitle = styled.h3`
+  font-size: 20px;
+  font-weight: 400;
+  margin-bottom: 5px;
+  padding-left: 60px;
+`;
+const SliderBtn = styled.span`
+  position: absolute;
+  width: auto;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  svg {
+    height: 50px;
+  }
+`;
+const SliderRBtn = styled(SliderBtn)`
+  right: 10px;
+`;
+const SliderLBtn = styled(SliderBtn)`
+  left: 10px;
 `;
 const Row = styled(motion.div)`
   position: absolute;
   display: grid;
-  width: 100%;
-  gap: 5px;
+  margin: 0 2.5%;
+  width: 95%;
+  gap: 10px;
   grid-template-columns: repeat(6, 1fr);
 `;
 const rowVariants = {
-  hidden: {
-    x: window.outerWidth,
-  },
+  hidden: (back: boolean) => ({
+    x: back ? -window.outerWidth : window.outerWidth,
+  }),
   visible: {
     x: 0,
   },
-  exit: {
-    x: -window.outerWidth,
-  },
+  exit: (back: boolean) => ({
+    x: back ? window.outerWidth : -window.outerWidth,
+  }),
 };
 const Box = styled(motion.div)<{ bgphoto: string }>`
   height: 200px;
@@ -84,8 +111,7 @@ const boxVariants = {
     scale: 1,
   },
   hover: {
-    scale: 1.3,
-    y: -30,
+    scale: 1.4,
     transition: {
       delay: 0.3,
       type: "tween",
@@ -162,6 +188,7 @@ const MovieWrap = styled.div`
 const MovieTitle = styled.h3`
   font-size: 36px;
 `;
+
 const MovieOverview = styled.p`
   font-size: 18px;
   margin-top: 10px;
@@ -180,13 +207,25 @@ function Home() {
   // console.log(data, isLoading);  // undefined true :Object false
   const [idx, setIdx] = useState(0);
   const [leaving, setLeaving] = useState(false);
+  const [back, setBack] = useState(false);
   const increaseIdx = () => {
+    setBack(false);
     if (data) {
       if (leaving) return;
       toggleLeaving();
       const totalMovies = data.results.length - 1; // -1은 banner에 쓰고 있는 영화를 하나 빼야하기 때문
       const maxIdx = Math.floor(totalMovies / offset) - 1;
       setIdx((prev) => (prev === maxIdx ? 0 : prev + 1)); //prev+1만 할 게 아니라 madIdx가 되면 0으로 돌려줘야함
+    }
+  };
+  const decreaseIdx = () => {
+    setBack(true);
+    if (data) {
+      if (leaving) return;
+      toggleLeaving();
+      const totalMovies = data.results.length - 1;
+      const maxIdx = Math.floor(totalMovies / offset) - 1;
+      setIdx((prev) => (prev === 0 ? maxIdx : prev - 1));
     }
   };
   const toggleLeaving = () => setLeaving((prev) => !prev);
@@ -199,20 +238,22 @@ function Home() {
 
   const clickedMovie =
     moviePathMatch?.params.movieId && data?.results.find((movie) => movie.id + "" === moviePathMatch.params.movieId);
-  // console.log(clickedMovie);
+  console.log(clickedMovie);
   return (
     <Wrapper>
       {isLoading ? (
         <Loader>Loading...</Loader>
       ) : (
         <>
-          <Banner onClick={increaseIdx} bgphoto={makeImagePath(data?.results[0].backdrop_path || "")}>
+          <Banner bgphoto={makeImagePath(data?.results[0].backdrop_path || "")}>
             <Title>{data?.results[0].title}</Title>
             <Overview>{data?.results[0].overview}</Overview>
           </Banner>
           <Slider>
-            <AnimatePresence initial={false} onExitComplete={toggleLeaving}>
+            <SliderTitle>Now Playing</SliderTitle>
+            <AnimatePresence custom={back} initial={false} onExitComplete={toggleLeaving}>
               <Row
+                custom={back}
                 key={idx}
                 variants={rowVariants}
                 initial="hidden"
@@ -241,6 +282,12 @@ function Home() {
                   ))}
               </Row>
             </AnimatePresence>
+            <SliderLBtn onClick={decreaseIdx}>
+              <FontAwesomeIcon icon={faAngleLeft} />
+            </SliderLBtn>
+            <SliderRBtn onClick={increaseIdx}>
+              <FontAwesomeIcon icon={faAngleRight} />
+            </SliderRBtn>
           </Slider>
           <AnimatePresence>
             {moviePathMatch ? (
@@ -270,6 +317,7 @@ function Home() {
               </>
             ) : null}
           </AnimatePresence>
+          <Footer />
         </>
       )}
     </Wrapper>
