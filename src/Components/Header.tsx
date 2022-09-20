@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { motion, useAnimation, useScroll } from "framer-motion";
 import { Link, useMatch, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 
 const Nav = styled(motion.nav)`
@@ -83,13 +83,21 @@ const Circle = styled(motion.span)`
 `;
 const Input = styled(motion.input)`
   position: absolute;
+  width: 170px;
   right: 0;
   height: 22px;
   transform-origin: right center;
   background: transparent;
   border: none;
   color: white;
-  border-bottom: 1px solid #7c7c7c;
+  border-bottom: 1px solid #fff;
+  span {
+    right: 0px;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    background-color: white;
+  }
 `;
 const navVariants = {
   top: {
@@ -131,12 +139,12 @@ function Header() {
     });
   }, [scrollY, navAnimation]);
   const history = useNavigate();
-
-  const { register, handleSubmit } = useForm<IForm>();
+  const { register, handleSubmit, resetField } = useForm<IForm>();
   const onValid = (data: IForm) => {
-    // console.log(data);
     history(`/search?keyword=${data.keyword}`);
+    resetField("keyword");
   };
+
   return (
     <Nav animate={navAnimation} variants={navVariants} initial="top">
       <Col>
@@ -159,7 +167,7 @@ function Header() {
             </Link>
           </Item>
           <Item>
-            <Link to="/Tv">
+            <Link to="/tv">
               TV show
               {tvMatch && <Circle layoutId="circle" />}
             </Link>
@@ -170,7 +178,7 @@ function Header() {
         <Search onSubmit={handleSubmit(onValid)}>
           <motion.svg
             onClick={toggleSearch}
-            animate={{ x: searchOpen ? -150 : 0 }}
+            animate={{ x: searchOpen ? -170 : 0 }}
             transition={{ type: "linear" }}
             fill="currentColor"
             viewBox="0 0 20 20"
@@ -187,7 +195,7 @@ function Header() {
             animate={inputAnimation}
             initial={{ scaleX: 0 }}
             transition={{ type: "linear" }}
-            placeholder="Search for movie or TV show..."
+            placeholder="제목,사람,장르"
           />
         </Search>
       </Col>
